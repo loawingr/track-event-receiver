@@ -1,4 +1,4 @@
-import { inHashLookup, requiredPropsValid, signalWhitelist, trackEvent } from "../receiver.js";
+import { getCampaignId, inHashLookup, requiredPropsValid, signalWhitelist, trackEvent } from "../receiver.js";
 
 describe("receiver test suite", ()=>{
 	beforeAll(()=>{
@@ -88,5 +88,16 @@ describe("receiver test suite", ()=>{
 	it("should tell you when the signal doesn't match the content type", () =>{
 		let a = {content:{area:"business", type:"article", url:"https://richardloa.ca/business/usmca-1", id:"1", title:"The new NAFTA agreement ratified"}, app:{name:"web-gallery"}};
 		expect(trackEvent("READ", a)).toBeTruthy();
+		expect(trackEvent("VIEWED", a)).toBeFalsy();
+	});
+
+	it("should extract the campaign id from the url", () =>{
+		expect(getCampaignId("https://richard.loa.ca/?cmp=father")).toEqual("father");
+		expect(getCampaignId("https://richard.loa.ca/?cmp=")).toBeFalsy();
+		expect(getCampaignId("https://richard.loa.ca/sports")).toBeFalsy();
+		expect(getCampaignId("https://richard.loa.ca/?cmp=&promo=deal")).toBeFalsy();
+		expect(getCampaignId("https://richard.loa.ca/?promo=deal")).toBeFalsy();
+		expect(getCampaignId({uri:"https://richardloa.ca?cmp=newsletter"})).toBeFalsy();
+		expect(getCampaignId("https://richard.loa.ca/?cmp=abc&promo=deal")).toEqual("abc");
 	});
 });

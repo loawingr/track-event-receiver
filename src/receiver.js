@@ -202,7 +202,26 @@ const requiredPropsValid = (props) => {
 	return true;
 };
 
+const getCampaignId = (uri) => {
+	if (typeof(uri) !== "string"){
+		return false;
+	}
+	let qs = uri.split("?", 2)[1];
+
+	if (typeof(qs) === "undefined" || qs === ""){
+		return false;
+	}
+	//look for cmp as a key and return the value
+	let params = new URLSearchParams(qs);
+	let cmp = params.get("cmp");
+	if (cmp === null){
+		return false;
+	}
+	return cmp;
+};
+
 module.exports = {
+	getCampaignId : getCampaignId,
 	inHashLookup : inHashLookup,
 	requiredPropsValid : requiredPropsValid,
 	signalWhitelist : signalWhitelist,
