@@ -1,6 +1,13 @@
 import { inHashLookup, requiredPropsValid, signalWhitelist, trackEvent } from "../receiver.js";
 
 describe("receiver test suite", ()=>{
+	beforeAll(()=>{
+		//mocking publish method from PubSub
+		window.PubSub = {};
+		window.PubSub.publish = (sig, props)=> {
+			return true;
+		};
+	});
 
 	it("should tell you  when signals are not valid", () => {
 		expect(inHashLookup("CLICKED")).toBeFalsy();
@@ -62,11 +69,24 @@ describe("receiver test suite", ()=>{
 	});
 
 	it("should tell you when required properties have all checked out", () => {
-		let a = { content:{area:"business", type:"article", url:"https://richardloa.ca/business/usmca", id:"1234", title:"USMCA ratified"}, app:{name:"web-gallery"}};
+		let a = { content:{area:"business", type:"article", url:"https://richardloa.ca/business/usmca-1.234", id:"1.234", title:"USMCA ratified"}, app:{name:"web-gallery"}};
+		let b = { content:{area:"business", type:"index", url:"https://richardloa.ca/business"}, app:{name:"web-gallery"}};
+		let c = { content:{area:"business", type:"video-stream", url:"https://richardloa.ca/business/usmca-1.234", id:"2.3456", title:"Trump halts USMCA with 5% tariff threat against Mexico", "duration":121 }, app:{name:"web-gallery"}};
+		let d = { content:{area:"business", type:"audio-stream", url:"https://richardloa.ca/business/usmca-1.234", id:"3.4567", title:"Mike Pence and Justin Trudeau USMCA interview", "duration":1551 }, app:{name:"web-gallery"}};
+		let e = { content:{area:"sports", type:"photo-gallery", url:"https://richardloa.ca/sports/raptors-finals-appearance-1.9876", id:"4.3210", title:"Biggest Kawhi moments this post season"}, app:{name:"web-gallery"}};
 		expect(requiredPropsValid(a)).toBeTruthy();
+		expect(requiredPropsValid(b)).toBeTruthy();
+		expect(requiredPropsValid(c)).toBeTruthy();
+		expect(requiredPropsValid(d)).toBeTruthy();
+		expect(requiredPropsValid(e)).toBeTruthy();
 	});
 
 	it("should tell you when signals are not valid", () => {
 		expect(inHashLookup("WATCHED", {"READ":true, "WATCHED":true, "LISTENED":true})).toBeTruthy();
+	});
+
+	it("should tell you when the signal doesn't match the content type", () =>{
+		let a = {content:{area:"business", type:"article", url:"https://richardloa.ca/business/usmca-1", id:"1", title:"The new NAFTA agreement ratified"}, app:{name:"web-gallery"}};
+		expect(trackEvent("READ", a)).toBeTruthy();
 	});
 });

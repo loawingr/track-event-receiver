@@ -118,20 +118,25 @@ const contentAreaWhitelist = {
 	"health": true,
 	"politics": true,
 	"lifestyle": true,
-	"technology": true
+	"technology": true,
+	"sports": true
 };
 
 
 const trackEvent = (signal, props) => {
-	if (!inHashLookup(signal, signalWhitelist)){
+	let sig = signal.toUpperCase();
+	if (!inHashLookup(sig, signalWhitelist)){
 		return false;
 	}
-	if (!requiredPropsValid(signal, props)){
+	if (!requiredPropsValid(props)){
+		return false;
+	}
+	if (!inHashLookup(sig, contentTypeWhitelist[props.content.type])){
 		return false;
 	}
 	let rv = false;
 	if(typeof(window.PubSub) !== "undefined"){
-		rv = window.PubSub.publish(signal, props);
+		rv = window.PubSub.publish(sig, props);
 	}
 	if (!!rv){
 		return true;
